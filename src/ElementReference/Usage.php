@@ -14,7 +14,6 @@ class Usage
     protected $count;
 
     /**
-     * @param Subject $subject
      * @param int $count
      */
     public function __construct(Subject $subject, $count = 1)
@@ -26,7 +25,7 @@ class Usage
     /**
      * @param int $by
      */
-    public function increment($by = 1)
+    public function increment($by = 1): void
     {
         $this->count += (int)$by;
     }

@@ -16,11 +16,7 @@ class XPath extends \DOMXPath
         $this->handleDefaultNamespace();
     }
 
-    /**
-     * @param string $nodeName
-     * @return string
-     */
-    public function createNodeName($nodeName)
+    public function createNodeName(string $nodeName): string
     {
         if (empty($this->defaultNamespaceURI)) {
             return $nodeName;
@@ -48,7 +44,7 @@ class XPath extends \DOMXPath
     /**
      * @return \DOMElement[]
      */
-    protected function getRootElements()
+    protected function getRootElements(): array
     {
         $rootElements = [];
         $elements = $this->document->getElementsByTagName('svg');

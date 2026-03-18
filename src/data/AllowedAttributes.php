@@ -11,12 +11,10 @@ class AllowedAttributes implements AttributeInterface
 
     /**
      * Returns an array of attributes
-     *
-     * @return array
      */
-    public static function getAttributes()
+    public static function getAttributes(): array
     {
-        return array(
+        return [
             // HTML
             'about',
             'accept',
@@ -352,6 +350,6 @@ class AllowedAttributes implements AttributeInterface
             'xlink:title',
             'xml:space',
             'xmlns:xlink',
-        );
+        ];
     }
 }

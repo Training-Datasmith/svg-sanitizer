@@ -3,11 +3,7 @@ namespace enshrined\svgSanitize;
 
 class Helper
 {
-    /**
-     * @param \DOMElement $element
-     * @return string|null
-     */
-    public static function getElementHref(\DOMElement $element)
+    public static function getElementHref(\DOMElement $element): ?string
     {
         if ($element->hasAttribute('href')) {
             return $element->getAttribute('href');
@@ -30,12 +26,7 @@ class Helper
         return substr($href, 1);
     }
 
-    /**
-     * @param \DOMElement $needle
-     * @param \DOMElement $haystack
-     * @return bool
-     */
-    public static function isElementContainedIn(\DOMElement $needle, \DOMElement $haystack)
+    public static function isElementContainedIn(\DOMElement $needle, \DOMElement $haystack): bool
     {
         if ($needle === $haystack) {
             return true;

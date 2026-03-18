@@ -29,7 +29,7 @@ require_once( __DIR__ . '/Sanitizer.php' );
 function sysexit(
 	$results,
 	$status
-) {
+): void {
 	echo json_encode(
 		$results,
 		JSON_PRETTY_PRINT
@@ -49,14 +49,14 @@ global $argv;
  * Set up results array, to
  * be printed on exit.
  */
-$results = array(
-	'totals' => array(
+$results = [
+	'totals' => [
 		'errors' => 0,
-	),
+	],
 
-	'files' => array(
-	),
-);
+	'files' => [
+	],
+];
 
 
 /*
@@ -76,9 +76,9 @@ $files_to_scan = array_values(
 
 if ( empty( $files_to_scan ) ) {
 	$results['totals']['errors']++;
-	$results['messages'] = array(
-		array( 'No files to scan specified' ),
-	);
+	$results['messages'] = [
+		[ 'No files to scan specified' ],
+	];
 
 	sysexit(
 		$results,
@@ -112,15 +112,15 @@ foreach( $files_to_scan as $file_name ) {
 	if ( false === $svg_file ) {
 		$results['totals']['errors']++;
 
-		$results['files'][ $file_name ][] = array(
+		$results['files'][ $file_name ][] = [
 			'errors' => 1,
-			'messages' => array(
-				array(
+			'messages' => [
+				[
 					'message' => 'File specified could not be read (' . $file_name . ')',
 					'line' => null,
-				),
-			),
-		);
+				],
+			],
+		];
 
 		continue;
 	}
@@ -136,10 +136,10 @@ foreach( $files_to_scan as $file_name ) {
 	 * If we find no issues, simply note that.
 	 */
 	if ( empty( $xml_issues ) && ( false !== $sanitize_status ) ) {
-		$results['files'][ $file_name ] = array(
+		$results['files'][ $file_name ] = [
 			'errors' => 0,
-			'messages' => array()
-		);
+			'messages' => []
+		];
 	}
 
 	/*
@@ -151,15 +151,15 @@ foreach( $files_to_scan as $file_name ) {
 	) {
 		$results['totals']['errors']++;
 
-		$results['files'][ $file_name ] = array(
+		$results['files'][ $file_name ] = [
 			'errors' => 1,
-			'messages' => array(
-				array(
+			'messages' => [
+				[
 					'message' => 'Unable to sanitize file \'' . $file_name . '\'' ,
 					'line' => null,
-				)
-			),
-		);
+				]
+			],
+		];
 	}
 
 	/*
@@ -169,10 +169,10 @@ foreach( $files_to_scan as $file_name ) {
 	else {
 		$results['totals']['errors'] += count( $xml_issues );
 
-		$results['files'][ $file_name ] = array(
+		$results['files'][ $file_name ] = [
 			'errors' => count( $xml_issues ),
 			'messages' => $xml_issues,
-		);
+		];
 	}
 
 	unset( $svg_file );

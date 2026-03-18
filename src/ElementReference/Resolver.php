@@ -33,7 +33,7 @@ class Resolver
         $this->useNestingLimit = $useNestingLimit;
     }
 
-    public function collect()
+    public function collect(): void
     {
         $this->collectIdentifiedElements();
         $this->processReferences();
@@ -43,7 +43,6 @@ class Resolver
     /**
      * Resolves one subject by element.
      *
-     * @param \DOMElement $element
      * @param bool $considerChildren Whether to search in Subject's children as well
      * @return Subject|null
      */
@@ -68,11 +67,11 @@ class Resolver
      * @param string $elementId
      * @return Subject[]
      */
-    public function findByElementId($elementId)
+    public function findByElementId($elementId): array
     {
         return array_filter(
             $this->subjects,
-            function (Subject $subject) use ($elementId) {
+            function (Subject $subject) use ($elementId): bool {
                 return $elementId === $subject->getElementId();
             }
         );
@@ -108,7 +107,10 @@ class Resolver
                 $useId = Helper::extractIdReferenceFromHref(
                     Helper::getElementHref($useElement)
                 );
-                if ($useId === null || !isset($this->subjects[$useId])) {
+                if ($useId === null) {
+                    continue;
+                }
+                if (!isset($this->subjects[$useId])) {
                     continue;
                 }
                 $subject->addUse($this->subjects[$useId]);
@@ -157,8 +159,6 @@ class Resolver
     /**
      * The Subject is invalid for some reason, therefore we should
      * remove it and all it's child usages.
-     *
-     * @param Subject $subject
      */
     protected function markSubjectAsInvalid(Subject $subject) {
         $this->elementsToRemove = array_merge(

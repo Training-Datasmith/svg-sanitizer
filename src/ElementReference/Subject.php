@@ -26,7 +26,6 @@ class Subject
     /**
      * Subject constructor.
      *
-     * @param \DOMElement $element
      * @param int         $useNestingLimit
      */
     public function __construct(\DOMElement $element, $useNestingLimit)
@@ -43,10 +42,7 @@ class Subject
         return $this->element;
     }
 
-    /**
-     * @return string
-     */
-    public function getElementId()
+    public function getElementId(): string
     {
         return $this->element->getAttribute('id');
     }
@@ -54,10 +50,9 @@ class Subject
     /**
      * @param array $subjects   Previously processed subjects
      * @param int   $level      The current level of nesting.
-     * @return bool
      * @throws \enshrined\svgSanitize\Exceptions\NestingException
      */
-    public function hasInfiniteLoop(array $subjects = [], $level = 1)
+    public function hasInfiniteLoop(array $subjects = [], $level = 1): bool
     {
         if ($level > $this->useNestingLimit) {
             throw new \enshrined\svgSanitize\Exceptions\NestingException('Nesting level too high, aborting', 1570713498, null, $this->getElement());
@@ -75,10 +70,7 @@ class Subject
         return false;
     }
 
-    /**
-     * @param Subject $subject
-     */
-    public function addUse(Subject $subject)
+    public function addUse(Subject $subject): void
     {
         if ($subject === $this) {
             throw new \LogicException('Cannot add self usage', 1570713416);
@@ -91,10 +83,7 @@ class Subject
         $this->useCollection[$identifier] = new Usage($subject);
     }
 
-    /**
-     * @param Subject $subject
-     */
-    public function addUsedIn(Subject $subject)
+    public function addUsedIn(Subject $subject): void
     {
         if ($subject === $this) {
             throw new \LogicException('Cannot add self as usage', 1570713417);
@@ -136,10 +125,8 @@ class Subject
     /**
      * Clear the internal arrays (to free up memory as they can get big)
      * and return all the child usages DOMElement's
-     *
-     * @return array
      */
-    public function clearInternalAndGetAffectedElements()
+    public function clearInternalAndGetAffectedElements(): array
     {
         $elements = array_map(function(Usage $usage) {
             return $usage->getSubject()->getElement();

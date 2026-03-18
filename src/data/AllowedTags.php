@@ -11,12 +11,10 @@ class AllowedTags implements TagInterface
 
     /**
      * Returns an array of tags
-     *
-     * @return array
      */
-    public static function getTags()
+    public static function getTags(): array
     {
-        return array (
+        return  [
             // HTML
             'a',
             'font',
@@ -94,6 +92,6 @@ class AllowedTags implements TagInterface
 
             //text
             '#text'
-        );
+        ];
     }
 }
