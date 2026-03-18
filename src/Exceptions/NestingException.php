@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace enshrined\svgSanitize\Exceptions;
 
 use Exception;
@@ -16,7 +19,7 @@ class NestingException extends \Exception
      * @param string           $message
      * @param int              $code
      */
-    public function __construct($message = "", $code = 0, ?Exception $previous = null, ?\DOMElement $element = null)
+    public function __construct($message = '', $code = 0, ?Exception $previous = null, ?\DOMElement $element = null)
     {
         $this->element = $element;
         parent::__construct($message, $code, $previous);

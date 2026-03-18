@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace enshrined\svgSanitize\Tests\Fixtures;
 
 use enshrined\svgSanitize\data\AttributeInterface;
@@ -12,8 +15,8 @@ class TestAllowedAttributes implements AttributeInterface
      */
     public static function getAttributes()
     {
-        return array(
+        return [
             'testAttribute',
-        );
+        ];
     }
 }

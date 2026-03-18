@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace enshrined\svgSanitize\data;
 
 /**
@@ -8,7 +11,6 @@ namespace enshrined\svgSanitize\data;
  */
 class AllowedTags implements TagInterface
 {
-
     /**
      * Returns an array of tags
      */
@@ -91,7 +93,7 @@ class AllowedTags implements TagInterface
             'feTurbulence',
 
             //text
-            '#text'
+            '#text',
         ];
     }
 }

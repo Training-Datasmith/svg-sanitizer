@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace enshrined\svgSanitize\Tests\Fixtures;
 
 use enshrined\svgSanitize\data\TagInterface;
@@ -12,8 +15,8 @@ class TestAllowedTags implements TagInterface
      */
     public static function getTags()
     {
-        return array(
+        return [
             'testTag',
-        );
+        ];
     }
 }

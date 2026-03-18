@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace enshrined\svgSanitize\ElementReference;
 
 use enshrined\svgSanitize\data\XPath;
@@ -152,7 +155,8 @@ class Resolver
      *
      * @return array
      */
-    public function getElementsToRemove() {
+    public function getElementsToRemove()
+    {
         return $this->elementsToRemove;
     }
 
@@ -160,7 +164,8 @@ class Resolver
      * The Subject is invalid for some reason, therefore we should
      * remove it and all it's child usages.
      */
-    protected function markSubjectAsInvalid(Subject $subject) {
+    protected function markSubjectAsInvalid(Subject $subject)
+    {
         $this->elementsToRemove = array_merge(
             $this->elementsToRemove,
             $subject->clearInternalAndGetAffectedElements()

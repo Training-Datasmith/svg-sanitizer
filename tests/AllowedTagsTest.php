@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace enshrined\svgSanitize\Tests;
 
 use enshrined\svgSanitize\data\AllowedTags;

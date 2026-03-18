@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace enshrined\svgSanitize\Tests;
 
 use enshrined\svgSanitize\Sanitizer;
@@ -56,7 +59,7 @@ class SanitizerTest extends TestCase
         $attributes = $sanitizer->getAllowedAttrs();
 
         self::assertSame('array', gettype($attributes));
-        self::assertSame( array_map('strtolower', TestAllowedAttributes::getAttributes()), $attributes);
+        self::assertSame(array_map('strtolower', TestAllowedAttributes::getAttributes()), $attributes);
     }
 
     /**
@@ -377,7 +380,6 @@ class SanitizerTest extends TestCase
         $dataDirectory = __DIR__ . '/data';
         $initialData = file_get_contents($dataDirectory . '/maliciousJsAndPhpTest.svg');
         $expected = file_get_contents($dataDirectory . '/maliciousJsAndPhpClean.svg');
-
 
         $sanitizer = new Sanitizer();
         $sanitizer->minify(false);

@@ -1,9 +1,12 @@
 <?php
+
+declare(strict_types=1);
+
 namespace enshrined\svgSanitize\data;
 
 class XPath extends \DOMXPath
 {
-    const DEFAULT_NAMESPACE_PREFIX = 'svg';
+    public const DEFAULT_NAMESPACE_PREFIX = 'svg';
 
     /**
      * @var string

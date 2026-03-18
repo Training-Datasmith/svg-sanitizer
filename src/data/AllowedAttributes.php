@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace enshrined\svgSanitize\data;
 
 /**
@@ -8,7 +11,6 @@ namespace enshrined\svgSanitize\data;
  */
 class AllowedAttributes implements AttributeInterface
 {
-
     /**
      * Returns an array of attributes
      */

@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace enshrined\svgSanitize;
 
 use enshrined\svgSanitize\data\AllowedAttributes;
@@ -15,7 +18,6 @@ use enshrined\svgSanitize\ElementReference\Resolver;
  */
 class Sanitizer
 {
-
     /**
      * @var \DOMDocument
      */
@@ -89,7 +91,7 @@ class Sanitizer
     /**
      *
      */
-    function __construct()
+    public function __construct()
     {
         // Load default tags/attributes
         $this->allowedAttrs = array_map('strtolower', AllowedAttributes::getAttributes());
@@ -180,7 +182,8 @@ class Sanitizer
      *
      * @return array
      */
-    public function getXmlIssues() {
+    public function getXmlIssues()
+    {
         return $this->xmlIssues;
     }
 
@@ -189,7 +192,8 @@ class Sanitizer
      *
      * @return bool
      */
-    public function getAllowHugeFiles() {
+    public function getAllowHugeFiles()
+    {
         return $this->allowHugeFiles;
     }
 
@@ -198,10 +202,10 @@ class Sanitizer
      *
      * @param bool $allowHugeFiles
      */
-    public function setAllowHugeFiles( $allowHugeFiles ): void {
+    public function setAllowHugeFiles($allowHugeFiles): void
+    {
         $this->allowHugeFiles = $allowHugeFiles;
     }
-
 
     /**
      * Sanitize the passed string
@@ -338,9 +342,9 @@ class Sanitizer
                     continue;
                 }
 
-                $this->cleanHrefs( $currentElement );
+                $this->cleanHrefs($currentElement);
 
-                $this->cleanXlinkHrefs( $currentElement );
+                $this->cleanXlinkHrefs($currentElement);
 
                 $this->cleanAttributesOnWhitelist($currentElement);
 
@@ -362,7 +366,7 @@ class Sanitizer
                     $breaksOutOfForeignContent = false;
                     for ($x = $currentElement->attributes->length - 1; $x >= 0; $x--) {
                         // get attribute name
-                        $attrName = $currentElement->attributes->item( $x )->nodeName;
+                        $attrName = $currentElement->attributes->item($x)->nodeName;
 
                         if (in_array(strtolower($attrName), ['face', 'color', 'size'])) {
                             $breaksOutOfForeignContent = true;
@@ -424,7 +428,7 @@ class Sanitizer
             }
 
             // Do we want to strip remote references?
-            if($this->removeRemoteReferences) {
+            if ($this->removeRemoteReferences) {
                 // Remove attribute if it has a remote reference
                 if (isset($element->attributes->item($x)->value) && $this->hasRemoteReference($element->attributes->item($x)->value)) {
                     $element->removeAttribute($attrName);
@@ -498,7 +502,8 @@ class Sanitizer
      *
      * @param $value
      */
-    protected function isHrefSafeValue($value): bool {
+    protected function isHrefSafeValue($value): bool
+    {
 
         // Allow empty values
         if (empty($value)) {
@@ -557,7 +562,7 @@ class Sanitizer
      */
     protected function removeNonPrintableCharacters($value): string
     {
-        return trim(preg_replace('/[^ -~]/xu','',$value));
+        return trim(preg_replace('/[^ -~]/xu', '', $value));
     }
 
     /**
@@ -571,7 +576,7 @@ class Sanitizer
         $value = $this->removeNonPrintableCharacters($value);
 
         $wrapped_in_url = preg_match('~^url\(\s*[\'"]\s*(.*)\s*[\'"]\s*\)$~xi', $value, $match);
-        if (!$wrapped_in_url){
+        if (!$wrapped_in_url) {
             return false;
         }
 
@@ -679,12 +684,13 @@ class Sanitizer
      *
      * @param \DOMNode $currentElement The current element.
      */
-    protected function cleanUnsafeNodes(\DOMNode $currentElement) {
+    protected function cleanUnsafeNodes(\DOMNode $currentElement)
+    {
         // Replace CDATA node with encoded text node
         if ($currentElement instanceof \DOMCdataSection) {
             $textNode = $currentElement->ownerDocument->createTextNode($currentElement->nodeValue);
             $currentElement->parentNode->replaceChild($textNode, $currentElement);
-        // If the element doesn't have a tagname, remove it and continue with next iteration
+            // If the element doesn't have a tagname, remove it and continue with next iteration
         } elseif (!$currentElement instanceof \DOMElement && !$currentElement instanceof \DOMText) {
             $currentElement->parentNode->removeChild($currentElement);
             $this->xmlIssues[] = [
@@ -694,7 +700,7 @@ class Sanitizer
             return;
         }
 
-        if ( $currentElement->childNodes && $currentElement->childNodes->length > 0 ) {
+        if ($currentElement->childNodes && $currentElement->childNodes->length > 0) {
             for ($j = $currentElement->childNodes->length - 1; $j >= 0; $j--) {
                 /** @var \DOMElement $childElement */
                 $childElement = $currentElement->childNodes->item($j);

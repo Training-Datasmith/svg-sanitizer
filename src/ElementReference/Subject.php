@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace enshrined\svgSanitize\ElementReference;
 
 class Subject
@@ -128,7 +131,7 @@ class Subject
      */
     public function clearInternalAndGetAffectedElements(): array
     {
-        $elements = array_map(function(Usage $usage) {
+        $elements = array_map(function (Usage $usage) {
             return $usage->getSubject()->getElement();
         }, $this->useCollection);
 
