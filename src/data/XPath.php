@@ -1,63 +1,52 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
+namespace enshrined\Svg_Sanitize\data;
 
-namespace enshrined\svgSanitize\data;
-
-class XPath extends \DOMXPath
+class X_Path extends \Domx_Path
 {
     public const DEFAULT_NAMESPACE_PREFIX = 'svg';
-
     /**
      * @var string
      */
-    protected $defaultNamespaceURI;
-
-    public function __construct(\DOMDocument $doc)
+    protected $default_namespace_uri;
+    public function __construct(\Dom_Document $doc)
     {
         parent::__construct($doc);
-        $this->handleDefaultNamespace();
+        $this->handle_default_namespace();
     }
-
-    public function createNodeName(string $nodeName): string
+    public function create_node_name(string $node_name): string
     {
-        if (empty($this->defaultNamespaceURI)) {
-            return $nodeName;
+        if (empty($this->default_namespace_uri)) {
+            return $node_name;
         }
-        return self::DEFAULT_NAMESPACE_PREFIX . ':' . $nodeName;
+        return self::DEFAULT_NAMESPACE_PREFIX . ':' . $node_name;
     }
-
-    protected function handleDefaultNamespace()
+    protected function handle_default_namespace()
     {
-        $rootElements = $this->getRootElements();
-
-        if (count($rootElements) !== 1) {
-            throw new \LogicException(
-                sprintf('Got %d svg elements, expected exactly one', count($rootElements)),
-                1570870568
-            );
+        $root_elements = $this->get_root_elements();
+        if (count($root_elements) !== 1) {
+            throw new \LogicException(sprintf('Got %d svg elements, expected exactly one', count($root_elements)), 1570870568);
         }
-        $this->defaultNamespaceURI = (string)$rootElements[0]->namespaceURI;
-
-        if ($this->defaultNamespaceURI !== '') {
-            $this->registerNamespace(self::DEFAULT_NAMESPACE_PREFIX, $this->defaultNamespaceURI);
+        $this->default_namespace_uri = (string) $root_elements[0]->namespace_uri;
+        if ($this->default_namespace_uri !== '') {
+            $this->register_namespace(self::DEFAULT_NAMESPACE_PREFIX, $this->default_namespace_uri);
         }
     }
-
     /**
      * @return \DOMElement[]
      */
-    protected function getRootElements(): array
+    protected function get_root_elements(): array
     {
-        $rootElements = [];
-        $elements = $this->document->getElementsByTagName('svg');
+        $root_elements = [];
+        $elements = $this->document->get_elements_by_tag_name('svg');
         /** @var \DOMElement $element */
         foreach ($elements as $element) {
-            if ($element->parentNode !== $this->document) {
+            if ($element->parent_node !== $this->document) {
                 continue;
             }
-            $rootElements[] = $element;
+            $root_elements[] = $element;
         }
-        return $rootElements;
+        return $root_elements;
     }
 }

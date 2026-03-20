@@ -1,28 +1,26 @@
 <?php
 
-declare(strict_types=1);
-
-namespace enshrined\svgSanitize\data;
+declare (strict_types=1);
+namespace enshrined\Svg_Sanitize\data;
 
 /**
  * Class AllowedTags
  *
  * @package enshrined\svgSanitize\data
  */
-class AllowedTags implements TagInterface
+class Allowed_Tags implements Tag_Interface
 {
     /**
      * Returns an array of tags
      */
-    public static function getTags(): array
+    public static function get_tags(): array
     {
-        return  [
+        return [
             // HTML
             'a',
             'font',
             'image',
             'style',
-
             // SVG
             'svg',
             'altglyph',
@@ -66,7 +64,6 @@ class AllowedTags implements TagInterface
             'use',
             'view',
             'vkern',
-
             // SVG Filters
             'feBlend',
             'feColorMatrix',
@@ -91,7 +88,6 @@ class AllowedTags implements TagInterface
             'feSpotLight',
             'feTile',
             'feTurbulence',
-
             //text
             '#text',
         ];

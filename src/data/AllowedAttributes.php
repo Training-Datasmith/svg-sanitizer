@@ -1,20 +1,19 @@
 <?php
 
-declare(strict_types=1);
-
-namespace enshrined\svgSanitize\data;
+declare (strict_types=1);
+namespace enshrined\Svg_Sanitize\data;
 
 /**
  * Class AllowedAttributes
  *
  * @package enshrined\svgSanitize\data
  */
-class AllowedAttributes implements AttributeInterface
+class Allowed_Attributes implements Attribute_Interface
 {
     /**
      * Returns an array of attributes
      */
-    public static function getAttributes(): array
+    public static function get_attributes(): array
     {
         return [
             // HTML
@@ -110,7 +109,6 @@ class AllowedAttributes implements AttributeInterface
             'version',
             'width',
             'xmlns',
-
             // SVG
             'accent-height',
             'accumulate',
@@ -290,7 +288,6 @@ class AllowedAttributes implements AttributeInterface
             'y2',
             'z',
             'zoomandpan',
-
             // MathML
             'accent',
             'accentunder',
@@ -345,7 +342,6 @@ class AllowedAttributes implements AttributeInterface
             'voffset',
             'width',
             'xmlns',
-
             // XML
             'xlink:href',
             'xml:id',
