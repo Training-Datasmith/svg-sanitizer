@@ -14,12 +14,12 @@
     },
     "autoload": {
         "psr-4": {
-            "enshrined\\svgSanitize\\": "src"
+            "enshrined\\svg_Sanitize\\": "src"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "enshrined\\svgSanitize\\Tests\\": "tests"
+            "enshrined\\svg_Sanitize\\Tests\\": "tests"
         }
     },
     "require": {
