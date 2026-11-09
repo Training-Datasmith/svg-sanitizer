@@ -310,6 +310,55 @@ function find_repo_camel_case_tokens(string $text): array
 }
 
 /**
+ * Scan one-line block comments with @var or @param before comment stripping.
+ *
+ * @return list<string>
+ */
+function scan_one_line_phpdoc_blocks(
+    string $relativePath,
+    string $content,
+    int $lineNo,
+    string $line,
+    array $denylist,
+    array $allowlist
+): array {
+    $errors = [];
+    if (strpos($line, '/**') === false || strpos($line, '*/') === false) {
+        return $errors;
+    }
+    if (!preg_match_all('/\/\*\*(.*?)\*\//', $line, $matches)) {
+        return $errors;
+    }
+    foreach ($matches[1] as $inner) {
+        $inner = trim($inner);
+        if (!preg_match('/@(var|param)\b/', $inner)) {
+            continue;
+        }
+        $docLine = preg_replace('/\b[A-Za-z0-9_\\\\]+::[a-zA-Z0-9_]+\b/', '', $inner);
+        if (!preg_match_all('/\$([a-zA-Z_][a-zA-Z0-9_]*)/', $docLine, $varMatches)) {
+            continue;
+        }
+        foreach ($denylist as $token) {
+            if (preg_match('/\b' . preg_quote($token, '/') . '\b/', $docLine)) {
+                $errors[] = sprintf('%s:%d: forbidden legacy name %s', $relativePath, $lineNo, $token);
+            }
+        }
+        [$class, $function] = resolve_site($relativePath, $content, $lineNo);
+        foreach ($varMatches[1] as $token) {
+            if (!preg_match('/[a-z][A-Z]/', $token)) {
+                continue;
+            }
+            if (is_allowed_token($relativePath, $class, $function, $token, $allowlist, $line)) {
+                continue;
+            }
+            $errors[] = sprintf('%s:%d: repo-owned camelCase identifier %s', $relativePath, $lineNo, $token);
+        }
+    }
+
+    return $errors;
+}
+
+/**
  * @return list<string>
  */
 function scan_content(string $relativePath, string $content, array $denylist, array $allowlist): array
@@ -347,6 +396,11 @@ function scan_content(string $relativePath, string $content, array $denylist, ar
         if (preg_match('/^\s*use\s+[\w\\\\{]/', $line)) {
             continue;
         }
+
+        $errors = array_merge(
+            $errors,
+            scan_one_line_phpdoc_blocks($relativePath, $content, $lineNo, $line, $denylist, $allowlist)
+        );
 
         $scanLine = $isDocblock ? ltrim(substr($trimmed, 1)) : $line;
         if ($isDocblock) {
@@ -456,7 +510,24 @@ if ($genericErrors === []) {
     exit(1);
 }
 
+$oneLineVarDoc = <<<'PHP'
+<?php
+namespace enshrined\Svg_Sanitize;
+class Sanitizer {
+    public function start_clean() {
+        /** @var \DOMElement $currentElement */
+        $current_element = 1;
+    }
+}
+PHP;
+$oneLineVarErrors = scan_content('src/Sanitizer.php', $oneLineVarDoc, $denylist, $demoAllow);
+if ($oneLineVarErrors === []) {
+    fwrite(STDERR, "check-rename: one-line @var demo should reject \$currentElement\n");
+    exit(1);
+}
+
 fwrite(STDOUT, "check-rename: no disallowed camelCase repo-owned names\n");
 fwrite(STDOUT, "check-rename: allowlisted preserveWhiteSpace rejected outside Sanitizer::reset_internal\n");
 fwrite(STDOUT, "check-rename: generic camelCase identifier rejected\n");
+fwrite(STDOUT, "check-rename: one-line @var camelCase identifier rejected\n");
 exit(0);
