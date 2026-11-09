@@ -5,13 +5,13 @@ namespace enshrined\Svg_Sanitize;
 
 class Helper
 {
-    public static function get_element_href(\Dom_Element $element): ?string
+    public static function get_element_href(\DOMElement $element): ?string
     {
-        if ($element->has_attribute('href')) {
-            return $element->get_attribute('href');
+        if ($element->hasAttribute('href')) {
+            return $element->getAttribute('href');
         }
-        if ($element->has_attribute_ns('http://www.w3.org/1999/xlink', 'href')) {
-            return $element->get_attribute_ns('http://www.w3.org/1999/xlink', 'href');
+        if ($element->hasAttributeNS('http://www.w3.org/1999/xlink', 'href')) {
+            return $element->getAttributeNS('http://www.w3.org/1999/xlink', 'href');
         }
         return null;
     }
@@ -26,13 +26,13 @@ class Helper
         }
         return substr($href, 1);
     }
-    public static function is_element_contained_in(\Dom_Element $needle, \Dom_Element $haystack): bool
+    public static function is_element_contained_in(\DOMElement $needle, \DOMElement $haystack): bool
     {
         if ($needle === $haystack) {
             return true;
         }
-        foreach ($haystack->child_nodes as $child_node) {
-            if (!$child_node instanceof \Dom_Element) {
+        foreach ($haystack->childNodes as $child_node) {
+            if (!$child_node instanceof \DOMElement) {
                 continue;
             }
             if (self::is_element_contained_in($needle, $child_node)) {

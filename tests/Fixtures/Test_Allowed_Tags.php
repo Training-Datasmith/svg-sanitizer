@@ -2,21 +2,16 @@
 
 declare(strict_types=1);
 
-namespace enshrined\svgSanitize\Tests\Fixtures;
+namespace enshrined\Svg_Sanitize\Tests\Fixtures;
 
-use enshrined\svgSanitize\data\TagInterface;
+use enshrined\Svg_Sanitize\data\Tag_Interface;
 
-class TestAllowedTags implements TagInterface
+class Test_Allowed_Tags implements Tag_Interface
 {
-    /**
-     * Returns an array of tags
-     *
-     * @return array
-     */
-    public static function getTags()
+    public static function get_tags()
     {
         return [
-            'testTag',
+            'test_tag',
         ];
     }
 }

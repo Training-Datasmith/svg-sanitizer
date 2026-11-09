@@ -2,150 +2,102 @@
 
 declare(strict_types=1);
 
-namespace enshrined\svgSanitize\Tests;
+namespace enshrined\Svg_Sanitize\Tests;
 
-use enshrined\svgSanitize\ElementReference\Subject;
+use enshrined\Svg_Sanitize\Element_Reference\Subject;
 use PHPUnit\Framework\TestCase;
 
-/**
- * Class SubjectTest
- */
-class SubjectTest extends TestCase
+class Subject_Test extends TestCase
 {
-    /**
-     * @var int
-     */
-    protected $nestingLimit = 15;
+    /** @var int */
+    protected $nesting_limit = 15;
 
     /**
-     * <first>
-     *   <!-- 0 -->
-     * </first>
-     *
      * @test
      */
-    public function oneLevelCountsUseIsCorrect()
+    public function one_level_counts_use_is_correct()
     {
         $first = new \DOMElement('first');
-        $firstSubject = new Subject($first, $this->nestingLimit);
-        self::assertSame(0, $firstSubject->countUse(false));
-        self::assertSame(0, $firstSubject->countUse(true));
+        $first_subject = new Subject($first, $this->nesting_limit);
+        self::assertSame(0, $first_subject->count_use(false));
+        self::assertSame(0, $first_subject->count_use(true));
     }
 
     /**
-     * <first>
-     *   <second /> <!-- 1 -->
-     *   <second /> <!-- 2 -->
-     * </first>
-     *
      * @test
      */
-    public function twoLevelsCountUseIsCorrect()
+    public function two_levels_count_use_is_correct()
     {
         $first = new \DOMElement('first');
         $second = new \DOMElement('second');
-        $firstSubject = new Subject($first, $this->nestingLimit);
-        $secondSubject = new Subject($second, $this->nestingLimit);
-        $firstSubject->addUse($secondSubject);
-        $firstSubject->addUse($secondSubject);
-        self::assertSame(2, $firstSubject->countUse(false));
-        self::assertSame(2, $firstSubject->countUse(true));
+        $first_subject = new Subject($first, $this->nesting_limit);
+        $second_subject = new Subject($second, $this->nesting_limit);
+        $first_subject->add_use($second_subject);
+        $first_subject->add_use($second_subject);
+        self::assertSame(2, $first_subject->count_use(false));
+        self::assertSame(2, $first_subject->count_use(true));
     }
 
     /**
-     * <first>
-     *   <second>    <!-- accumulated=false: 0; accumulated=true: 1 -->
-     *     <third /> <!-- accumulated=false: 1; accumulated=true: 2 -->
-     *     <third /> <!-- accumulated=false: 2; accumulated=true: 3 -->
-     *     <third /> <!-- accumulated=false: 3; accumulated=true: 4 -->
-     *   </second>
-     *   <second>    <!-- accumulated=false: 3; accumulated=true: 5 -->
-     *     <third /> <!-- accumulated=false: 4; accumulated=true: 6 -->
-     *     <third /> <!-- accumulated=false: 5; accumulated=true: 7 -->
-     *     <third /> <!-- accumulated=false: 6; accumulated=true: 8 -->
-     *   </second>
-     * </first>
-     *
      * @test
      */
-    public function threeLevelsCountUseIsCorrect()
+    public function three_levels_count_use_is_correct()
     {
         $first = new \DOMElement('first');
         $second = new \DOMElement('second');
         $third = new \DOMElement('third');
-        $firstSubject = new Subject($first, $this->nestingLimit);
-        $secondSubject = new Subject($second, $this->nestingLimit);
-        $thirdSubject = new Subject($third, $this->nestingLimit);
-        $firstSubject->addUse($secondSubject);
-        $firstSubject->addUse($secondSubject);
-        $secondSubject->addUse($thirdSubject);
-        $secondSubject->addUse($thirdSubject);
-        $secondSubject->addUse($thirdSubject);
-        self::assertSame(6, $firstSubject->countUse(false));
-        self::assertSame(8, $firstSubject->countUse(true));
+        $first_subject = new Subject($first, $this->nesting_limit);
+        $second_subject = new Subject($second, $this->nesting_limit);
+        $third_subject = new Subject($third, $this->nesting_limit);
+        $first_subject->add_use($second_subject);
+        $first_subject->add_use($second_subject);
+        $second_subject->add_use($third_subject);
+        $second_subject->add_use($third_subject);
+        $second_subject->add_use($third_subject);
+        self::assertSame(6, $first_subject->count_use(false));
+        self::assertSame(8, $first_subject->count_use(true));
     }
 
     /**
-     * <first>
-     * </first>
-     *
      * @test
      */
-    public function oneLevelCountsUsedInIsCorrect()
+    public function one_level_counts_used_in_is_correct()
     {
         $first = new \DOMElement('first');
-        $firstSubject = new Subject($first, $this->nestingLimit);
-        self::assertSame(0, $firstSubject->countUsedIn());
+        $first_subject = new Subject($first, $this->nesting_limit);
+        self::assertSame(0, $first_subject->count_used_in());
     }
 
     /**
-     * <first>
-     *   <second /> <!-- 1 -->
-     *   <second /> <!-- 2 -->
-     * </first>
-     *
      * @test
      */
-    public function twoLevelsCountUsedInIsCorrect()
+    public function two_levels_count_used_in_is_correct()
     {
         $first = new \DOMElement('first');
         $second = new \DOMElement('second');
-        $firstSubject = new Subject($first, $this->nestingLimit);
-        $secondSubject = new Subject($second, $this->nestingLimit);
-        $secondSubject->addUsedIn($firstSubject);
-        $secondSubject->addUsedIn($firstSubject);
-        self::assertSame(2, $secondSubject->countUsedIn());
+        $first_subject = new Subject($first, $this->nesting_limit);
+        $second_subject = new Subject($second, $this->nesting_limit);
+        $second_subject->add_used_in($first_subject);
+        $second_subject->add_used_in($first_subject);
+        self::assertSame(2, $second_subject->count_used_in());
     }
 
     /**
-     * <first>
-     *   <second>
-     *     <third /> <!-- 1 -->
-     *     <third /> <!-- 2 -->
-     *     <third /> <!-- 3 -->
-     *   </second>
-     *   <second>
-     *     <third /> <!-- 4 -->
-     *     <third /> <!-- 5 -->
-     *     <third /> <!-- 6 -->
-     *   </second>
-     * </first>
-     *
      * @test
      */
-    public function threeLevelsCountUsedInIsCorrect()
+    public function three_levels_count_used_in_is_correct()
     {
         $first = new \DOMElement('first');
         $second = new \DOMElement('second');
         $third = new \DOMElement('third');
-        $firstSubject = new Subject($first, $this->nestingLimit);
-        $secondSubject = new Subject($second, $this->nestingLimit);
-        $thirdSubject = new Subject($third, $this->nestingLimit);
-        $thirdSubject->addUsedIn($secondSubject);
-        $thirdSubject->addUsedIn($secondSubject);
-        $thirdSubject->addUsedIn($secondSubject);
-        $secondSubject->addUsedIn($firstSubject);
-        $secondSubject->addUsedIn($firstSubject);
-        self::assertSame(6, $thirdSubject->countUsedIn());
+        $first_subject = new Subject($first, $this->nesting_limit);
+        $second_subject = new Subject($second, $this->nesting_limit);
+        $third_subject = new Subject($third, $this->nesting_limit);
+        $third_subject->add_used_in($second_subject);
+        $third_subject->add_used_in($second_subject);
+        $third_subject->add_used_in($second_subject);
+        $second_subject->add_used_in($first_subject);
+        $second_subject->add_used_in($first_subject);
+        self::assertSame(6, $third_subject->count_used_in());
     }
 }

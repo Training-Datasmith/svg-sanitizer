@@ -15,21 +15,21 @@ src/
     Allowed_Attributes.php       - Allowlist of permitted SVG attribute names
     Tag_Interface.php            - Contract for allowed tag lists
     Attribute_Interface.php      - Contract for allowed attribute lists
-    X_Path.php                   - XPath expression constants for SVG traversal
-  ElementReference/
+    X_Path.php                   - DOM query helper for SVG traversal
+  Element_Reference/
     Resolver.php                 - Resolves element references (e.g., <use href="#id">)
     Subject.php                  - Represents a referenced element with its usages
     Usage.php                    - Represents a single use of a referenced element
   Exceptions/
     Nesting_Exception.php        - Thrown when element nesting exceeds the safe depth limit
-  svg-scanner.php                - Stream filter for pre-processing SVG input
+  svg_scanner.php                - CLI scanner for pre-processing SVG input
 ```
 
 ## Key Design Decisions
 
 - **Allowlist approach**: Only explicitly permitted tags and attributes pass through — everything else is stripped. This is more secure than a denylist.
 - **DOMDocument parsing**: Uses PHP's `DOMDocument`/`DOMXPath` for parsing and manipulation rather than regex, avoiding common regex-based bypass vectors.
-- **Reference-loop detection**: `ElementReference\Resolver` detects circular `<use>` element references (a common SVG DoS/XSS vector) and removes them.
+- **Reference-loop detection**: `Element_Reference\Resolver` detects circular `<use>` element references (a common SVG DoS/XSS vector) and removes them.
 - **Nesting depth limit**: Deeply nested SVG structures are rejected via `Nesting_Exception` to prevent XML bomb-style attacks.
 
 ## Extension Points
@@ -45,6 +45,6 @@ Sanitizer::sanitize(string $svg)
   └─> DOMXPath traversal         — visit all nodes
         └─> check tag against Allowed_Tags
         └─> check attributes against Allowed_Attributes
-        └─> ElementReference\Resolver — detect circular <use> refs
+        └─> Element_Reference\Resolver — detect circular <use> refs
   └─> DOMDocument::saveXML()     — serialise cleaned SVG
 ```

@@ -11,12 +11,12 @@ class Nesting_Exception extends \Exception
      */
     protected $element;
     /**
-     * NestingException constructor.
+     * Nesting_Exception constructor.
      *
      * @param string           $message
      * @param int              $code
      */
-    public function __construct($message = '', $code = 0, ?Exception $previous = null, ?\Dom_Element $element = null)
+    public function __construct($message = '', $code = 0, ?Exception $previous = null, ?\DOMElement $element = null)
     {
         $this->element = $element;
         parent::__construct($message, $code, $previous);

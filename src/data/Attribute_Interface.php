@@ -4,9 +4,9 @@ declare (strict_types=1);
 namespace enshrined\Svg_Sanitize\data;
 
 /**
- * Class AttributeInterface
+ * Attribute_Interface contract
  *
- * @package enshrined\svgSanitize\data
+ * @package enshrined\Svg_Sanitize\data
  */
 interface Attribute_Interface
 {

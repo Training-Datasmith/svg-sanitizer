@@ -2,21 +2,16 @@
 
 declare(strict_types=1);
 
-namespace enshrined\svgSanitize\Tests\Fixtures;
+namespace enshrined\Svg_Sanitize\Tests\Fixtures;
 
-use enshrined\svgSanitize\data\AttributeInterface;
+use enshrined\Svg_Sanitize\data\Attribute_Interface;
 
-class TestAllowedAttributes implements AttributeInterface
+class Test_Allowed_Attributes implements Attribute_Interface
 {
-    /**
-     * Returns an array of attributes
-     *
-     * @return array
-     */
-    public static function getAttributes()
+    public static function get_attributes()
     {
         return [
-            'testAttribute',
+            'test_attribute',
         ];
     }
 }

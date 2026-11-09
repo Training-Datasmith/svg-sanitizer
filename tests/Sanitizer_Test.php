@@ -2,25 +2,25 @@
 
 declare(strict_types=1);
 
-namespace enshrined\svgSanitize\Tests;
+namespace enshrined\Svg_Sanitize\Tests;
 
-use enshrined\svgSanitize\Sanitizer;
-use enshrined\svgSanitize\Tests\Fixtures\TestAllowedAttributes;
-use enshrined\svgSanitize\Tests\Fixtures\TestAllowedTags;
+use enshrined\Svg_Sanitize\Sanitizer;
+use enshrined\Svg_Sanitize\Tests\Fixtures\Test_Allowed_Attributes;
+use enshrined\Svg_Sanitize\Tests\Fixtures\Test_Allowed_Tags;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Class SanitizerTest
+ * Sanitizer integration tests
  */
-class SanitizerTest extends TestCase
+class Sanitizer_Test extends TestCase
 {
     /**
      * Make sure the initial tags are loaded
      */
-    public function testLoadDefaultTags()
+    public function test_load_default_tags()
     {
         $sanitizer = new Sanitizer();
-        $tags = $sanitizer->getAllowedTags();
+        $tags = $sanitizer->get_allowed_tags();
 
         self::assertSame('array', gettype($tags));
     }
@@ -28,10 +28,10 @@ class SanitizerTest extends TestCase
     /**
      * Make sure the initial attributes are loaded
      */
-    public function testLoadDefaultAttributes()
+    public function test_load_default_attributes()
     {
         $sanitizer = new Sanitizer();
-        $attributes = $sanitizer->getAllowedAttrs();
+        $attributes = $sanitizer->get_allowed_attrs();
 
         self::assertSame('array', gettype($attributes));
     }
@@ -39,71 +39,71 @@ class SanitizerTest extends TestCase
     /**
      * Test the custom tag setters and getters
      */
-    public function testSetCustomTags()
+    public function test_set_custom_tags()
     {
         $sanitizer = new Sanitizer();
-        $sanitizer->setAllowedTags(new TestAllowedTags());
-        $tags = $sanitizer->getAllowedTags();
+        $sanitizer->set_allowed_tags(new Test_Allowed_Tags());
+        $tags = $sanitizer->get_allowed_tags();
 
         self::assertSame('array', gettype($tags));
-        self::assertSame(array_map('strtolower', TestAllowedTags::getTags()), $tags);
+        self::assertSame(array_map('strtolower', Test_Allowed_Tags::get_tags()), $tags);
     }
 
     /**
      * Test the custom attribute setters and getters
      */
-    public function testSetCustomAttributes()
+    public function test_set_custom_attributes()
     {
         $sanitizer = new Sanitizer();
-        $sanitizer->setAllowedAttrs(new TestAllowedAttributes());
-        $attributes = $sanitizer->getAllowedAttrs();
+        $sanitizer->set_allowed_attrs(new Test_Allowed_Attributes());
+        $attributes = $sanitizer->get_allowed_attrs();
 
         self::assertSame('array', gettype($attributes));
-        self::assertSame(array_map('strtolower', TestAllowedAttributes::getAttributes()), $attributes);
+        self::assertSame(array_map('strtolower', Test_Allowed_Attributes::get_attributes()), $attributes);
     }
 
     /**
      * Test that malicious elements and attributes are removed from standard XML
      */
-    public function testSanitizeXMLDoc()
+    public function test_sanitize_xml_doc()
     {
-        $dataDirectory = __DIR__ . '/data';
-        $initialData = file_get_contents($dataDirectory . '/xmlTestOne.xml');
-        $expected = file_get_contents($dataDirectory . '/xmlCleanOne.xml');
+        $data_directory = __DIR__ . '/data';
+        $initial_data = file_get_contents($data_directory . '/xml_test_one.xml');
+        $expected = file_get_contents($data_directory . '/xml_clean_one.xml');
 
         $sanitizer = new Sanitizer();
-        $cleanData = $sanitizer->sanitize($initialData);
+        $clean_data = $sanitizer->sanitize($initial_data);
 
-        self::assertXmlStringEqualsXmlString($expected, $cleanData);
+        self::assertXmlStringEqualsXmlString($expected, $clean_data);
     }
 
     /**
      * Test that malicious elements and attributes are removed from an SVG
      */
-    public function testSanitizeSVGDoc()
+    public function test_sanitize_svg_doc()
     {
-        $dataDirectory = __DIR__ . '/data';
-        $initialData = file_get_contents($dataDirectory . '/svgTestOne.svg');
-        $expected = file_get_contents($dataDirectory . '/svgCleanOne.svg');
+        $data_directory = __DIR__ . '/data';
+        $initial_data = file_get_contents($data_directory . '/svg_test_one.svg');
+        $expected = file_get_contents($data_directory . '/svg_clean_one.svg');
 
         $sanitizer = new Sanitizer();
-        $cleanData = $sanitizer->sanitize($initialData);
+        $clean_data = $sanitizer->sanitize($initial_data);
 
-        self::assertXmlStringEqualsXmlString($expected, $cleanData);
+        self::assertXmlStringEqualsXmlString($expected, $clean_data);
     }
 
     /**
      * Test that a badly formatted XML document returns false
      */
-    public function testBadXMLReturnsFalse()
+    public function test_bad_xml_returns_false()
     {
-        $dataDirectory = __DIR__ . '/data';
-        $initialData = file_get_contents($dataDirectory . '/badXmlTestOne.svg');
+        $data_directory = __DIR__ . '/data';
+        $initial_data = file_get_contents($data_directory . '/bad_xml_test_one.svg');
 
         $sanitizer = new Sanitizer();
-        $cleanData = $sanitizer->sanitize($initialData);
+        $clean_data = $sanitizer->sanitize($initial_data);
 
-        self::assertFalse($cleanData);
+        self::assertFalse($clean_data);
         self::assertEquals(
             [
                 [
@@ -115,113 +115,113 @@ class SanitizerTest extends TestCase
                     'line' => 16,
                 ],
             ],
-            $sanitizer->getXmlIssues()
+            $sanitizer->get_xml_issues()
         );
     }
 
     /**
      * Make sure that hrefs get sanitized correctly
      */
-    public function testSanitizeHrefs()
+    public function test_sanitize_hrefs()
     {
-        $dataDirectory = __DIR__ . '/data';
-        $initialData = file_get_contents($dataDirectory . '/hrefTestOne.svg');
-        $expected = file_get_contents($dataDirectory . '/hrefCleanOne.svg');
+        $data_directory = __DIR__ . '/data';
+        $initial_data = file_get_contents($data_directory . '/href_test_one.svg');
+        $expected = file_get_contents($data_directory . '/href_clean_one.svg');
 
         $sanitizer = new Sanitizer();
-        $cleanData = $sanitizer->sanitize($initialData);
+        $clean_data = $sanitizer->sanitize($initial_data);
 
-        self::assertXmlStringEqualsXmlString($expected, $cleanData);
+        self::assertXmlStringEqualsXmlString($expected, $clean_data);
     }
 
     /**
      * Make sure that hrefs get sanitized correctly when the xlink namespace is omitted.
      */
-    public function testSanitizeHrefsNoXlinkNamespace()
+    public function test_sanitize_hrefsNoXlinkNamespace()
     {
-        $dataDirectory = __DIR__ . '/data';
-        $initialData = file_get_contents($dataDirectory . '/hrefTestTwo.svg');
-        $expected = file_get_contents($dataDirectory . '/hrefCleanTwo.svg');
+        $data_directory = __DIR__ . '/data';
+        $initial_data = file_get_contents($data_directory . '/href_test_two.svg');
+        $expected = file_get_contents($data_directory . '/href_clean_two.svg');
 
         $sanitizer = new Sanitizer();
-        $cleanData = $sanitizer->sanitize($initialData);
+        $clean_data = $sanitizer->sanitize($initial_data);
 
-        self::assertXmlStringEqualsXmlString($expected, $cleanData);
+        self::assertXmlStringEqualsXmlString($expected, $clean_data);
     }
 
     /**
      * Make sure that external references get sanitized correctly
      */
-    public function testSanitizeExternal()
+    public function test_sanitize_external()
     {
-        $dataDirectory = __DIR__ . '/data';
-        $initialData = file_get_contents($dataDirectory . '/externalTest.svg');
-        $expected = file_get_contents($dataDirectory . '/externalClean.svg');
+        $data_directory = __DIR__ . '/data';
+        $initial_data = file_get_contents($data_directory . '/external_test.svg');
+        $expected = file_get_contents($data_directory . '/external_clean.svg');
 
         $sanitizer = new Sanitizer();
-        $sanitizer->removeRemoteReferences(true);
-        $cleanData = $sanitizer->sanitize($initialData);
+        $sanitizer->remove_remote_references(true);
+        $clean_data = $sanitizer->sanitize($initial_data);
 
-        self::assertXmlStringEqualsXmlString($expected, $cleanData);
+        self::assertXmlStringEqualsXmlString($expected, $clean_data);
     }
 
     /**
      * Test that minification of an SVG works
      */
-    public function testSanitizeAndMinifiySVGDoc()
+    public function test_sanitize_and_minifiy_svg_doc()
     {
-        $dataDirectory = __DIR__ . '/data';
-        $initialData = file_get_contents($dataDirectory . '/svgTestOne.svg');
-        $expected = file_get_contents($dataDirectory . '/svgCleanOneMinified.svg');
+        $data_directory = __DIR__ . '/data';
+        $initial_data = file_get_contents($data_directory . '/svg_test_one.svg');
+        $expected = file_get_contents($data_directory . '/svg_clean_one_minified.svg');
 
         $sanitizer = new Sanitizer();
         $sanitizer->minify(true);
-        $cleanData = $sanitizer->sanitize($initialData);
+        $clean_data = $sanitizer->sanitize($initial_data);
 
-        self::assertXmlStringEqualsXmlString($expected, $cleanData);
+        self::assertXmlStringEqualsXmlString($expected, $clean_data);
     }
 
     /**
      * Test that ARIA and Data Attributes are allowed
      */
-    public function testThatAriaAndDataAttributesAreAllowed()
+    public function test_that_aria_and_data_attributes_are_allowed()
     {
-        $dataDirectory = __DIR__ . '/data';
-        $initialData = file_get_contents($dataDirectory . '/ariaDataTest.svg');
-        $expected = file_get_contents($dataDirectory . '/ariaDataClean.svg');
+        $data_directory = __DIR__ . '/data';
+        $initial_data = file_get_contents($data_directory . '/aria_data_test.svg');
+        $expected = file_get_contents($data_directory . '/aria_data_clean.svg');
 
         $sanitizer = new Sanitizer();
         $sanitizer->minify(false);
-        $cleanData = $sanitizer->sanitize($initialData);
+        $clean_data = $sanitizer->sanitize($initial_data);
 
-        self::assertXmlStringEqualsXmlString($expected, $cleanData);
+        self::assertXmlStringEqualsXmlString($expected, $clean_data);
     }
 
     /**
      * Test that ARIA and Data Attributes are allowed
      */
-    public function testThatExternalUseElementsAreStripped()
+    public function test_that_external_use_elements_are_stripped()
     {
-        $dataDirectory = __DIR__ . '/data';
-        $initialData = file_get_contents($dataDirectory . '/useTest.svg');
-        $expected = file_get_contents($dataDirectory . '/useClean.svg');
+        $data_directory = __DIR__ . '/data';
+        $initial_data = file_get_contents($data_directory . '/use_test.svg');
+        $expected = file_get_contents($data_directory . '/use_clean.svg');
 
         $sanitizer = new Sanitizer();
         $sanitizer->minify(false);
-        $cleanData = $sanitizer->sanitize($initialData);
+        $clean_data = $sanitizer->sanitize($initial_data);
 
-        self::assertXmlStringEqualsXmlString($expected, $cleanData);
+        self::assertXmlStringEqualsXmlString($expected, $clean_data);
     }
 
     /**
-     * Test setXMLOptions and minifying works as expected
+     * Test set_xml_options and minifying works as expected
      */
-    public function testMinifiedOptions()
+    public function test_minified_options()
     {
         $sanitizer = new Sanitizer();
         $sanitizer->minify(true);
-        $sanitizer->removeXMLTag(true);
-        $sanitizer->setXMLOptions(0);
+        $sanitizer->remove_xml_tag(true);
+        $sanitizer->set_xml_options(0);
 
         $input = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><title>chevron-double-down</title><path d="M4 11.73l.68-.73L12 17.82 19.32 11l.68.73-7.66 7.13a.5.5 0 0 1-.68 0z"/><path d="M4 5.73L4.68 5 12 11.82 19.32 5l.68.73-7.66 7.13a.5.5 0 0 1-.68 0z"/></svg>';
         $output = $sanitizer->sanitize($input);
@@ -232,185 +232,185 @@ class SanitizerTest extends TestCase
     /**
      * @test
      */
-    public function useRecursionsAreDetected()
+    public function use_recursions_are_detected()
     {
-        $dataDirectory = __DIR__ . '/data';
-        $initialData = file_get_contents($dataDirectory . '/xlinkLaughsTest.svg');
-        $expected = file_get_contents($dataDirectory . '/xlinkLaughsClean.svg');
+        $data_directory = __DIR__ . '/data';
+        $initial_data = file_get_contents($data_directory . '/xlink_laughs_test.svg');
+        $expected = file_get_contents($data_directory . '/xlink_laughs_clean.svg');
 
         $sanitizer = new Sanitizer();
         $sanitizer->minify(false);
-        $cleanData = $sanitizer->sanitize($initialData);
+        $clean_data = $sanitizer->sanitize($initial_data);
 
-        self::assertXmlStringEqualsXmlString($expected, $cleanData);
+        self::assertXmlStringEqualsXmlString($expected, $clean_data);
     }
 
     /**
      * @test
      */
-    public function infiniteUseLoopsAreDetected()
+    public function infinite_use_loops_are_detected()
     {
-        $dataDirectory = __DIR__ . '/data';
-        $initialData = file_get_contents($dataDirectory . '/xlinkLoopTest.svg');
-        $expected = file_get_contents($dataDirectory . '/xlinkLoopClean.svg');
+        $data_directory = __DIR__ . '/data';
+        $initial_data = file_get_contents($data_directory . '/xlink_loop_test.svg');
+        $expected = file_get_contents($data_directory . '/xlink_loop_clean.svg');
 
         $sanitizer = new Sanitizer();
         $sanitizer->minify(false);
-        $cleanData = $sanitizer->sanitize($initialData);
+        $clean_data = $sanitizer->sanitize($initial_data);
 
-        self::assertXmlStringEqualsXmlString($expected, $cleanData);
+        self::assertXmlStringEqualsXmlString($expected, $clean_data);
     }
 
     /**
      * @test
      */
-    public function doctypeAndEntityAreRemoved()
+    public function doctype_and_entity_are_removed()
     {
-        $dataDirectory = __DIR__ . '/data';
-        $initialData = file_get_contents($dataDirectory . '/entityTest.svg');
-        $expected = file_get_contents($dataDirectory . '/entityClean.svg');
+        $data_directory = __DIR__ . '/data';
+        $initial_data = file_get_contents($data_directory . '/entity_test.svg');
+        $expected = file_get_contents($data_directory . '/entity_clean.svg');
 
         $sanitizer = new Sanitizer();
         $sanitizer->minify(false);
-        $sanitizer->removeRemoteReferences(true);
-        $cleanData = $sanitizer->sanitize($initialData);
+        $sanitizer->remove_remote_references(true);
+        $clean_data = $sanitizer->sanitize($initial_data);
 
-        self::assertSame($expected, $cleanData);
+        self::assertSame($expected, $clean_data);
     }
 
     /**
      * Make sure that DOS attacks using the <use> element are detected.
      */
-    public function testUseDOSattacksAreNullified()
+    public function test_use_dos_attacks_are_nullified()
     {
-        $dataDirectory = __DIR__ . '/data';
-        $initialData = file_get_contents($dataDirectory . '/useDosTest.svg');
-        $expected = file_get_contents($dataDirectory . '/useDosClean.svg');
+        $data_directory = __DIR__ . '/data';
+        $initial_data = file_get_contents($data_directory . '/use_dos_test.svg');
+        $expected = file_get_contents($data_directory . '/use_dos_clean.svg');
 
         $sanitizer = new Sanitizer();
         $sanitizer->minify(false);
-        $cleanData = $sanitizer->sanitize($initialData);
+        $clean_data = $sanitizer->sanitize($initial_data);
 
-        self::assertXmlStringEqualsXmlString($expected, $cleanData);
+        self::assertXmlStringEqualsXmlString($expected, $clean_data);
     }
 
     /**
      * Make sure that DOS attacks using the <use> element are detected,
      * especially when the SVG is extremely large.
      */
-    public function testLargeUseDOSattacksAreNullified()
+    public function test_large_use_dos_attacks_are_nullified()
     {
-        $dataDirectory = __DIR__ . '/data';
-        $initialData = file_get_contents($dataDirectory . '/useDosTestTwo.svg');
-        $expected = file_get_contents($dataDirectory . '/useDosCleanTwo.svg');
+        $data_directory = __DIR__ . '/data';
+        $initial_data = file_get_contents($data_directory . '/use_dos_test_two.svg');
+        $expected = file_get_contents($data_directory . '/use_dos_clean_two.svg');
 
         $sanitizer = new Sanitizer();
         $sanitizer->minify(false);
-        $cleanData = $sanitizer->sanitize($initialData);
+        $clean_data = $sanitizer->sanitize($initial_data);
 
-        self::assertXmlStringEqualsXmlString($expected, $cleanData);
+        self::assertXmlStringEqualsXmlString($expected, $clean_data);
     }
 
-    public function testInvalidNodesAreHandled()
+    public function test_invalid_nodes_are_handled()
     {
-        $dataDirectory = __DIR__ . '/data';
-        $initialData = file_get_contents($dataDirectory . '/htmlTest.svg');
-        $expected = file_get_contents($dataDirectory . '/htmlClean.svg');
+        $data_directory = __DIR__ . '/data';
+        $initial_data = file_get_contents($data_directory . '/html_test.svg');
+        $expected = file_get_contents($data_directory . '/html_clean.svg');
 
         $sanitizer = new Sanitizer();
         $sanitizer->minify(false);
-        $cleanData = $sanitizer->sanitize($initialData);
+        $clean_data = $sanitizer->sanitize($initial_data);
 
-        self::assertXmlStringEqualsXmlString($expected, $cleanData);
-    }
-
-    /**
-     * @test
-     */
-    public function cdataSectionIsSanitized()
-    {
-        $dataDirectory = __DIR__ . '/data';
-        $initialData = file_get_contents($dataDirectory . '/cdataTest.svg');
-        $expected = file_get_contents($dataDirectory . '/cdataClean.svg');
-
-        $sanitizer = new Sanitizer();
-        $sanitizer->minify(false);
-        $cleanData = $sanitizer->sanitize($initialData);
-
-        self::assertXmlStringEqualsXmlString($expected, $cleanData);
+        self::assertXmlStringEqualsXmlString($expected, $clean_data);
     }
 
     /**
      * @test
      */
-    public function cdataBackgroundSectionIsSanitized()
+    public function cdata_section_is_sanitized()
     {
-        $dataDirectory = __DIR__ . '/data';
-        $initialData = file_get_contents($dataDirectory . '/cdataTwoTest.svg');
-        $expected = file_get_contents($dataDirectory . '/cdataTwoClean.svg');
+        $data_directory = __DIR__ . '/data';
+        $initial_data = file_get_contents($data_directory . '/cdata_test.svg');
+        $expected = file_get_contents($data_directory . '/cdata_clean.svg');
 
         $sanitizer = new Sanitizer();
         $sanitizer->minify(false);
-        $cleanData = $sanitizer->sanitize($initialData);
+        $clean_data = $sanitizer->sanitize($initial_data);
 
-        self::assertXmlStringEqualsXmlString($expected, $cleanData);
+        self::assertXmlStringEqualsXmlString($expected, $clean_data);
     }
 
     /**
      * @test
      */
-    public function formDataisSanitized()
+    public function cdata_background_section_is_sanitized()
     {
-        $dataDirectory = __DIR__ . '/data';
-        $initialData = file_get_contents($dataDirectory . '/formDataTest.svg');
-        $expected = file_get_contents($dataDirectory . '/formDataClean.svg');
+        $data_directory = __DIR__ . '/data';
+        $initial_data = file_get_contents($data_directory . '/cdata_two_test.svg');
+        $expected = file_get_contents($data_directory . '/cdata_two_clean.svg');
 
         $sanitizer = new Sanitizer();
         $sanitizer->minify(false);
-        $cleanData = $sanitizer->sanitize($initialData);
+        $clean_data = $sanitizer->sanitize($initial_data);
 
-        self::assertXmlStringEqualsXmlString($expected, $cleanData);
+        self::assertXmlStringEqualsXmlString($expected, $clean_data);
     }
 
     /**
      * @test
      */
-    public function maliciousSvgJsSanitized()
+    public function form_data_is_sanitized()
     {
-        $dataDirectory = __DIR__ . '/data';
-        $initialData = file_get_contents($dataDirectory . '/maliciousJsAndPhpTest.svg');
-        $expected = file_get_contents($dataDirectory . '/maliciousJsAndPhpClean.svg');
+        $data_directory = __DIR__ . '/data';
+        $initial_data = file_get_contents($data_directory . '/form_data_test.svg');
+        $expected = file_get_contents($data_directory . '/form_data_clean.svg');
 
         $sanitizer = new Sanitizer();
         $sanitizer->minify(false);
-        $cleanData = $sanitizer->sanitize($initialData);
+        $clean_data = $sanitizer->sanitize($initial_data);
 
-        self::assertXmlStringEqualsXmlString($expected, $cleanData);
+        self::assertXmlStringEqualsXmlString($expected, $clean_data);
     }
 
     /**
      * @test
      */
-    public function maliciousSvgPhpTagsStripped()
+    public function malicious_svg_js_sanitized()
     {
-        $dataDirectory = __DIR__ . '/data';
-        $initialData = file_get_contents($dataDirectory . '/maliciousJsAndPhpTest.svg');
+        $data_directory = __DIR__ . '/data';
+        $initial_data = file_get_contents($data_directory . '/malicious_js_and_php_test.svg');
+        $expected = file_get_contents($data_directory . '/malicious_js_and_php_clean.svg');
 
         $sanitizer = new Sanitizer();
         $sanitizer->minify(false);
-        $cleanData = $sanitizer->sanitize($initialData);
+        $clean_data = $sanitizer->sanitize($initial_data);
 
-        $useNewMethod = true;
+        self::assertXmlStringEqualsXmlString($expected, $clean_data);
+    }
+
+    /**
+     * @test
+     */
+    public function malicious_svg_php_tags_stripped()
+    {
+        $data_directory = __DIR__ . '/data';
+        $initial_data = file_get_contents($data_directory . '/malicious_js_and_php_test.svg');
+
+        $sanitizer = new Sanitizer();
+        $sanitizer->minify(false);
+        $clean_data = $sanitizer->sanitize($initial_data);
+
+        $use_new_method = true;
 
         if (!method_exists($this, 'assertStringNotContainsStringIgnoringCase')) {
-            $useNewMethod = false;
+            $use_new_method = false;
         }
 
         foreach (['<?php', '<?='] as $value) {
-            if ($useNewMethod) {
-                self::assertStringNotContainsStringIgnoringCase($value, $cleanData);
+            if ($use_new_method) {
+                self::assertStringNotContainsStringIgnoringCase($value, $clean_data);
             } else {
-                self::assertThat($cleanData, $this->logicalNot($this->stringContains($value, true)));
+                self::assertThat($clean_data, $this->logicalNot($this->stringContains($value, true)));
             }
         }
     }

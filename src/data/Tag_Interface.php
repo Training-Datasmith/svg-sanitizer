@@ -4,9 +4,9 @@ declare (strict_types=1);
 namespace enshrined\Svg_Sanitize\data;
 
 /**
- * Interface TagInterface
+ * Tag_Interface contract
  *
- * @package enshrined\svgSanitize\tags
+ * @package enshrined\Svg_Sanitize\data
  */
 interface Tag_Interface
 {

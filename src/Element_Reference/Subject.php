@@ -26,7 +26,7 @@ class Subject
      *
      * @param int         $useNestingLimit
      */
-    public function __construct(\Dom_Element $element, $use_nesting_limit)
+    public function __construct(\DOMElement $element, $use_nesting_limit)
     {
         $this->element = $element;
         $this->use_nesting_limit = $use_nesting_limit;
@@ -40,12 +40,12 @@ class Subject
     }
     public function get_element_id(): string
     {
-        return $this->element->get_attribute('id');
+        return $this->element->getAttribute('id');
     }
     /**
      * @param array $subjects   Previously processed subjects
      * @param int   $level      The current level of nesting.
-     * @throws \enshrined\svgSanitize\Exceptions\NestingException
+     * @throws Nesting_Exception
      */
     public function has_infinite_loop(array $subjects = [], $level = 1): bool
     {

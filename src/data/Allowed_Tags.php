@@ -4,9 +4,9 @@ declare (strict_types=1);
 namespace enshrined\Svg_Sanitize\data;
 
 /**
- * Class AllowedTags
+ * Class Allowed_Tags
  *
- * @package enshrined\svgSanitize\data
+ * @package enshrined\Svg_Sanitize\data
  */
 class Allowed_Tags implements Tag_Interface
 {

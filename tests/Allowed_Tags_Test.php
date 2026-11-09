@@ -2,31 +2,22 @@
 
 declare(strict_types=1);
 
-namespace enshrined\svgSanitize\Tests;
+namespace enshrined\Svg_Sanitize\Tests;
 
-use enshrined\svgSanitize\data\AllowedTags;
+use enshrined\Svg_Sanitize\data\Allowed_Tags;
 use PHPUnit\Framework\TestCase;
 
-/**
- * Class AllowedTagsTest
- */
-class AllowedTagsTest extends TestCase
+class Allowed_Tags_Test extends TestCase
 {
-    /**
-     * Test that the class implements the interface
-     */
-    public function testItImplementsTheInterface()
+    public function test_it_implements_the_interface()
     {
-        $class = new AllowedTags();
-        self::assertInstanceOf('enshrined\svgSanitize\data\TagInterface', $class);
+        $class = new Allowed_Tags();
+        self::assertInstanceOf('enshrined\Svg_Sanitize\data\Tag_Interface', $class);
     }
 
-    /**
-     * Test that an array is returned
-     */
-    public function testThatItReturnsAnArray()
+    public function test_that_it_returns_an_array()
     {
-        $result = AllowedTags::getTags();
+        $result = Allowed_Tags::get_tags();
         self::assertSame('array', gettype($result));
     }
 }

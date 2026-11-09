@@ -4,9 +4,9 @@ declare (strict_types=1);
 namespace enshrined\Svg_Sanitize\data;
 
 /**
- * Class AllowedAttributes
+ * Class Allowed_Attributes
  *
- * @package enshrined\svgSanitize\data
+ * @package enshrined\Svg_Sanitize\data
  */
 class Allowed_Attributes implements Attribute_Interface
 {

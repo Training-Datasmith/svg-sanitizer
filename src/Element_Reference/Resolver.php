@@ -9,7 +9,7 @@ use enshrined\Svg_Sanitize\Helper;
 class Resolver
 {
     /**
-     * @var XPath
+     * @var X_Path
      */
     protected $x_path;
     /**
@@ -41,7 +41,7 @@ class Resolver
      * @param bool $considerChildren Whether to search in Subject's children as well
      * @return Subject|null
      */
-    public function find_by_element(\Dom_Element $element, $consider_children = false)
+    public function find_by_element(\DOMElement $element, $consider_children = false)
     {
         foreach ($this->subjects as $subject) {
             if ($element === $subject->get_element() || $consider_children && Helper::is_element_contained_in($element, $subject->get_element())) {
@@ -72,7 +72,7 @@ class Resolver
         /** @var \DOMNodeList|\DOMElement[] $elements */
         $elements = $this->x_path->query('//*[@id]');
         foreach ($elements as $element) {
-            $this->subjects[$element->get_attribute('id')] = new Subject($element, $this->use_nesting_limit);
+            $this->subjects[$element->getAttribute('id')] = new Subject($element, $this->use_nesting_limit);
         }
     }
     /**

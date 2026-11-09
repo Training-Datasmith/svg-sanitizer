@@ -10,21 +10,18 @@ Either require `enshrined/svg-sanitize` through composer or download the repo an
 
 ## Usage
 
-Using this is fairly easy. Create a new instance of `enshrined\svgSanitize\Sanitizer` and then call the `sanitize` whilst passing in your dirty SVG/XML
+Using this is fairly easy. Create a new instance of `enshrined\Svg_Sanitize\Sanitizer` and then call `sanitize()` whilst passing in your dirty SVG/XML.
 
 **Basic Example**
 
 ```php
-use enshrined\svgSanitize\Sanitizer;
+use enshrined\Svg_Sanitize\Sanitizer;
 
-// Create a new sanitizer instance
 $sanitizer = new Sanitizer();
 
-// Load the dirty svg
-$dirtySVG = file_get_contents('filthy.svg');
+$dirty_svg = file_get_contents('filthy.svg');
 
-// Pass it to the sanitizer and get it back clean
-$cleanSVG = $sanitizer->sanitize($dirtySVG);
+$clean_svg = $sanitizer->sanitize($dirty_svg);
 
 // Now do what you want with your clean SVG/XML data
 
@@ -36,9 +33,9 @@ This will either return a sanitized SVG/XML string or boolean `false` if XML par
 
 ## Options
 
-You may pass your own whitelist of tags and attributes by using the `Sanitizer::setAllowedTags` and `Sanitizer::setAllowedAttrs` methods respectively.
+You may pass your own whitelist of tags and attributes by using `Sanitizer::set_allowed_tags()` and `Sanitizer::set_allowed_attrs()` respectively.
 
-These methods require that you implement the `enshrined\svgSanitize\data\TagInterface` or `enshrined\svgSanitize\data\AttributeInterface`.
+These methods require that you implement `enshrined\Svg_Sanitize\data\Tag_Interface` or `enshrined\Svg_Sanitize\data\Attribute_Interface`.
 
 ## Remove remote references
 
@@ -46,15 +43,15 @@ You have the option to remove attributes that reference remote files, this will 
 
 This defaults to false, set to true to remove references.
 
-`$sanitizer->removeRemoteReferences(true);`
+`$sanitizer->remove_remote_references(true);`
 
 ## Viewing Sanitization Issues
 
-You may use the `getXmlIssues()` method to return an array of issues that occurred during sanitization.
+You may use `get_xml_issues()` to return an array of issues that occurred during sanitization.
 
 This may be useful for logging or providing feedback to the user on why an SVG was refused.
 
-`$issues = $sanitizer->getXmlIssues();`
+`$issues = $sanitizer->get_xml_issues();`
 
 ## Minification
 
@@ -78,7 +75,7 @@ See [corresponding changelog entry](https://docs.typo3.org/c/typo3/cms-core/main
 
 ## Tests
 
-You can run these by running `vendor/bin/phpunit` from the base directory of this package.
+You can run these with `bash scripts/system-test.sh` or `composer test` after `composer update`.
 
 ## Standalone scanning of files via CLI
 
@@ -86,7 +83,7 @@ Thanks to the work by [gudmdharalds](https://github.com/gudmdharalds) there's no
 
 Any errors will be output in JSON format. See [the PR](https://github.com/darylldoyle/svg-sanitizer/pull/25) for an example.
 
-Use it as follows: `php svg-scanner.php ~/svgs/myfile.svg`
+Use it as follows: `php src/svg_scanner.php ~/svgs/myfile.svg`
 
 ## To-Do
 

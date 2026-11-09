@@ -2,31 +2,22 @@
 
 declare(strict_types=1);
 
-namespace enshrined\svgSanitize\Tests;
+namespace enshrined\Svg_Sanitize\Tests;
 
-use enshrined\svgSanitize\data\AllowedAttributes;
+use enshrined\Svg_Sanitize\data\Allowed_Attributes;
 use PHPUnit\Framework\TestCase;
 
-/**
- * Class AllowedAttributesTest
- */
-class AllowedAttributesTest extends TestCase
+class Allowed_Attributes_Test extends TestCase
 {
-    /**
-     * Test that the class implements the interface
-     */
-    public function testItImplementsTheInterface()
+    public function test_it_implements_the_interface()
     {
-        $class = new AllowedAttributes();
-        self::assertInstanceOf('enshrined\svgSanitize\data\AttributeInterface', $class);
+        $class = new Allowed_Attributes();
+        self::assertInstanceOf('enshrined\Svg_Sanitize\data\Attribute_Interface', $class);
     }
 
-    /**
-     * Test that an array is returned
-     */
-    public function testThatItReturnsAnArray()
+    public function test_that_it_returns_an_array()
     {
-        $result = AllowedAttributes::getAttributes();
+        $result = Allowed_Attributes::get_attributes();
         self::assertSame('array', gettype($result));
     }
 }
