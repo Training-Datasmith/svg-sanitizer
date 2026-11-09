@@ -44,6 +44,18 @@ $denylist = [
     'addUsedIn',
 ];
 
+$assertionMethods = [
+    'assertSame',
+    'assertEquals',
+    'assertFalse',
+    'assertInstanceOf',
+    'assertXmlStringEqualsXmlString',
+    'assertStringNotContainsStringIgnoringCase',
+    'assertThat',
+    'logicalNot',
+    'stringContains',
+];
+
 /**
  * Site-scoped allowlist: relative path + :: + class + :: + method => tokens.
  *
@@ -125,28 +137,42 @@ $allowlist = [
         'feTurbulence',
     ],
     'src/data/Allowed_Attributes.php::Allowed_Attributes::get_attributes' => ['filterUnits'],
+    'src/Element_Reference/Subject.php::Subject::add_use' => ['LogicException'],
+    'src/Element_Reference/Subject.php::Subject::add_used_in' => ['LogicException'],
     'tests/Sanitizer_Test.php::Sanitizer_Test::test_minified_options' => ['viewBox'],
 ];
 
-$assertionMethods = [
-    'assertSame',
-    'assertEquals',
-    'assertFalse',
-    'assertInstanceOf',
-    'assertXmlStringEqualsXmlString',
-    'assertStringNotContainsStringIgnoringCase',
-    'assertThat',
-    'logicalNot',
-    'stringContains',
-];
-
-foreach (glob($repoRoot . '/tests/*_Test.php') as $testFile) {
-    $rel = substr($testFile, strlen($repoRoot) + 1);
-    $allowlist[$rel . '::__construct'] = array_merge(['TestCase'], $assertionMethods);
-    foreach ($assertionMethods as $method) {
-        $allowlist[$rel . '::*::' . $method] = [$method];
+/**
+ * @return array<string, list<string>>
+ */
+function build_test_method_allowlist(string $repoRoot, array $assertionMethods): array
+{
+    $extra = [];
+    foreach (glob($repoRoot . '/tests/*_Test.php') ?: [] as $testFile) {
+        $rel = substr($testFile, strlen($repoRoot) + 1);
+        $content = file_get_contents($testFile);
+        if ($content === false) {
+            continue;
+        }
+        $class = '';
+        if (preg_match('/\bclass\s+([A-Z][A-Za-z0-9_]*)\b/', $content, $m)) {
+            $class = $m[1];
+        }
+        if ($class === '') {
+            continue;
+        }
+        $extra[$rel . '::' . $class . '::__header'] = ['TestCase'];
+        if (preg_match_all('/\bfunction\s+([a-z][a-z0-9_]*)\b/', $content, $methods)) {
+            foreach ($methods[1] as $method) {
+                $extra[$rel . '::' . $class . '::' . $method] = $assertionMethods;
+            }
+        }
     }
+
+    return $extra;
 }
+
+$allowlist = array_merge($allowlist, build_test_method_allowlist($repoRoot, $assertionMethods));
 
 /**
  * @return array<int, string>
@@ -186,7 +212,7 @@ function resolve_site(string $relativePath, string $content, int $lineNumber): a
         if (preg_match('/\bclass\s+([A-Z][A-Za-z0-9_]*)\b/', $lines[$i], $m)) {
             $class = $m[1];
         }
-        if (preg_match('/\bfunction\s+([a-z][A-Za-z0-9_]*)\b/', $lines[$i], $m)) {
+        if (preg_match('/\bfunction\s+([a-z][a-z0-9_]*)\b/', $lines[$i], $m)) {
             $function = $m[1];
         }
     }
@@ -194,15 +220,20 @@ function resolve_site(string $relativePath, string $content, int $lineNumber): a
     return [$class, $function];
 }
 
-function is_allowed_token(string $relativePath, string $class, string $function, string $token, array $allowlist): bool
+function is_allowed_token(string $relativePath, string $class, string $function, string $token, array $allowlist, string $line): bool
 {
-    if ($class === '' && $function === '') {
+    if (preg_match('/\bextends\s+TestCase\b/', $line) && $class !== '') {
+        $header = $relativePath . '::' . $class . '::__header';
+        if (isset($allowlist[$header]) && in_array($token, $allowlist[$header], true)) {
+            return true;
+        }
+    }
+    if ($class === '') {
         return false;
     }
     $sites = [
         $relativePath . '::' . $class . '::' . $function,
-        $relativePath . '::' . $class . '::*',
-        $relativePath . '::__construct',
+        $relativePath . '::' . $class . '::__header',
     ];
     foreach ($sites as $site) {
         if (!isset($allowlist[$site])) {
@@ -262,6 +293,23 @@ function strip_strings_and_comments(string $code): string
 }
 
 /**
+ * Repo-owned camelCase: any lowercase-to-uppercase transition inside an identifier (including after '_').
+ *
+ * @return list<string>
+ */
+function find_repo_camel_case_tokens(string $text): array
+{
+    $tokens = [];
+    if (preg_match_all('/\b([a-zA-Z_][a-zA-Z0-9_]*[a-z][A-Z][a-zA-Z0-9_]*)\b/', $text, $matches)) {
+        foreach ($matches[1] as $token) {
+            $tokens[] = $token;
+        }
+    }
+
+    return $tokens;
+}
+
+/**
  * @return list<string>
  */
 function scan_content(string $relativePath, string $content, array $denylist, array $allowlist): array
@@ -279,6 +327,7 @@ function scan_content(string $relativePath, string $content, array $denylist, ar
 
         return $errors;
     }
+
     foreach ($lines as $lineIndex => $line) {
         $lineNo = $lineIndex + 1;
         foreach ($denylist as $token) {
@@ -291,19 +340,26 @@ function scan_content(string $relativePath, string $content, array $denylist, ar
     foreach ($lines as $lineIndex => $line) {
         $lineNo = $lineIndex + 1;
         $trimmed = ltrim($line);
-        if ($trimmed === '' || $trimmed[0] === '*' || strncmp($trimmed, '//', 2) === 0) {
+        $isDocblock = $trimmed !== '' && $trimmed[0] === '*';
+        if (strncmp($trimmed, '//', 2) === 0) {
             continue;
         }
-        $code_line = strip_strings_and_comments($line);
-        if (!preg_match_all('/\b([a-z]+[A-Z][A-Za-z0-9_]*)\b/', $code_line, $matches)) {
+        if (preg_match('/^\s*use\s+[\w\\\\{]/', $line)) {
+            continue;
+        }
+
+        $scanLine = $isDocblock ? ltrim(substr($trimmed, 1)) : $line;
+        if ($isDocblock) {
+            $scanLine = preg_replace('/\b[A-Za-z0-9_\\\\]+::[a-zA-Z0-9_]+\b/', '', $scanLine);
+        }
+        $code_line = strip_strings_and_comments($scanLine);
+        $tokens = find_repo_camel_case_tokens($code_line);
+        if ($tokens === []) {
             continue;
         }
         [$class, $function] = resolve_site($relativePath, $content, $lineNo);
-        foreach ($matches[1] as $token) {
-            if (is_allowed_token($relativePath, $class, $function, $token, $allowlist)) {
-                continue;
-            }
-            if (strpos($relativePath, 'tests/') === 0 && in_array($token, ['assertSame', 'assertEquals', 'assertFalse', 'assertInstanceOf', 'assertXmlStringEqualsXmlString', 'assertStringNotContainsStringIgnoringCase', 'assertThat', 'logicalNot', 'stringContains', 'TestCase'], true)) {
+        foreach ($tokens as $token) {
+            if (is_allowed_token($relativePath, $class, $function, $token, $allowlist, $line)) {
                 continue;
             }
             $errors[] = sprintf('%s:%d: repo-owned camelCase identifier %s', $relativePath, $lineNo, $token);
@@ -330,6 +386,19 @@ function scan_repository(array $roots, string $repoRoot, array $denylist, array 
         }
         $errors = array_merge($errors, scan_content($relative, $content, $denylist, $allowlist));
     }
+
+    foreach ([$repoRoot . '/README.md', $repoRoot . '/ARCHITECTURE.md'] as $doc) {
+        if (!is_readable($doc)) {
+            continue;
+        }
+        $relative = substr($doc, strlen($repoRoot) + 1);
+        $content = file_get_contents($doc);
+        if ($content === false) {
+            continue;
+        }
+        $errors = array_merge($errors, scan_content($relative, $content, $denylist, $allowlist));
+    }
+
     return $errors;
 }
 
@@ -341,7 +410,6 @@ if ($errors !== []) {
     exit(1);
 }
 
-// In-memory demo: same scanner, token allowed at Sanitizer::reset_internal only.
 $demoAllow = $allowlist;
 $demoContent = <<<'PHP'
 <?php
@@ -373,6 +441,22 @@ if ($goodErrors !== []) {
     exit(1);
 }
 
+$genericCamel = <<<'PHP'
+<?php
+namespace enshrined\Svg_Sanitize;
+class Helper {
+    public static function bad_helper() {
+        $totallyWrong = 1;
+    }
+}
+PHP;
+$genericErrors = scan_content('src/Helper.php', $genericCamel, $denylist, $demoAllow);
+if ($genericErrors === []) {
+    fwrite(STDERR, "check-rename: generic camelCase demo should fail\n");
+    exit(1);
+}
+
 fwrite(STDOUT, "check-rename: no disallowed camelCase repo-owned names\n");
 fwrite(STDOUT, "check-rename: allowlisted preserveWhiteSpace rejected outside Sanitizer::reset_internal\n");
+fwrite(STDOUT, "check-rename: generic camelCase identifier rejected\n");
 exit(0);

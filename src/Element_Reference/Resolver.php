@@ -38,7 +38,7 @@ class Resolver
     /**
      * Resolves one subject by element.
      *
-     * @param bool $considerChildren Whether to search in Subject's children as well
+     * @param bool $consider_children Whether to search in Subject's children as well
      * @return Subject|null
      */
     public function find_by_element(\DOMElement $element, $consider_children = false)
@@ -55,7 +55,7 @@ class Resolver
      * DOM might have same ids assigned to different elements and leaving
      * it to client/browser implementation which element to actually use.
      *
-     * @param string $elementId
+     * @param string $element_id
      * @return Subject[]
      */
     public function find_by_element_id($element_id): array
@@ -84,7 +84,7 @@ class Resolver
         $use_node_name = $this->x_path->create_node_name('use');
         foreach ($this->subjects as $subject) {
             $use_elements = $this->x_path->query($use_node_name . '[@href or @xlink:href]', $subject->get_element());
-            /** @var \DOMElement $useElement */
+            /** @var \DOMElement $use_element */
             foreach ($use_elements as $use_element) {
                 $use_id = Helper::extract_id_reference_from_href(Helper::get_element_href($use_element));
                 if ($use_id === null) {

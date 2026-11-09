@@ -47,7 +47,7 @@ $expectedOrg = [];
  * @param array<string, array<string, mixed>> $phpVersions
  * @param array<string, string> $jsonRefs
  */
-function validate_pins(array $orgMap, array $phpVersions, array $jsonRefs, bool $log = true): bool
+function validate_org_pins(array $orgMap, array $phpVersions, array $jsonRefs, bool $log = true): bool
 {
     $failed = false;
     foreach ($orgMap as $name => $spec) {
@@ -81,77 +81,132 @@ function validate_pins(array $orgMap, array $phpVersions, array $jsonRefs, bool 
         }
     }
 
-    if (!isset($phpVersions['phpunit/phpunit'], $jsonRefs['phpunit/phpunit'])) {
-        if ($log) {
-            fwrite(STDERR, "check-cluster-pins: phpunit/phpunit is not installed.\n");
-        }
-        return false;
-    }
-
-    $phpRef = strtolower((string) ($phpVersions['phpunit/phpunit']['reference'] ?? ''));
-    $jsonRef = $jsonRefs['phpunit/phpunit'];
-    if ($phpRef === '' || !hash_equals($phpRef, $jsonRef)) {
-        if ($log) {
-            fwrite(STDERR, "check-cluster-pins: phpunit/phpunit reference mismatch between installed.php and installed.json.\n");
-        }
-        $failed = true;
-    }
-
     return !$failed;
 }
 
-$indexShas = [
-    '698cbbc1e75a1ef1968f9cbfec89be056b288d0f',
-    'a37d66fabf01af0eedabffe271b70dbe71723001',
-];
+function phpunit_php_reference(array $phpVersions): string
+{
+    return strtolower((string) ($phpVersions['phpunit/phpunit']['reference'] ?? ''));
+}
 
-if (!validate_pins($expectedOrg, $installedVersions, $jsonByName)) {
+function phpunit_json_reference(array $jsonRefs): string
+{
+    return strtolower((string) ($jsonRefs['phpunit/phpunit'] ?? ''));
+}
+
+function phpunit_ref_matches_expected(string $reference, string $expected): bool
+{
+    return $reference !== '' && hash_equals($expected, $reference);
+}
+
+/**
+ * @param array<string, array<string, mixed>> $phpVersions
+ * @param array<string, string> $jsonRefs
+ */
+function validate_packagist_phpunit(array $phpVersions, array $jsonRefs, array $jsonMeta, string $expectedRef): bool
+{
+    if (!isset($phpVersions['phpunit/phpunit'], $jsonRefs['phpunit/phpunit'])) {
+        fwrite(STDERR, "check-cluster-pins: phpunit/phpunit is not installed.\n");
+        return false;
+    }
+    $phpRef = phpunit_php_reference($phpVersions);
+    $jsonRef = phpunit_json_reference($jsonRefs);
+    if (!phpunit_ref_matches_expected($phpRef, $expectedRef)) {
+        fwrite(STDERR, "check-cluster-pins: phpunit/phpunit installed.php reference does not match expected Packagist SHA.\n");
+        return false;
+    }
+    if (!phpunit_ref_matches_expected($jsonRef, $expectedRef)) {
+        fwrite(STDERR, "check-cluster-pins: phpunit/phpunit installed.json reference does not match expected Packagist SHA.\n");
+        return false;
+    }
+    if (!hash_equals($phpRef, $jsonRef)) {
+        fwrite(STDERR, "check-cluster-pins: phpunit/phpunit reference mismatch between installed.php and installed.json.\n");
+        return false;
+    }
+
+    $indexShas = [
+        '698cbbc1e75a1ef1968f9cbfec89be056b288d0f',
+        'a37d66fabf01af0eedabffe271b70dbe71723001',
+    ];
+    if (in_array($phpRef, $indexShas, true)) {
+        fwrite(STDERR, "check-cluster-pins: phpunit/phpunit must not be the Training-Datasmith index tip.\n");
+        return false;
+    }
+
+    $version = (string) ($jsonMeta['phpunit/phpunit']['version'] ?? $phpVersions['phpunit/phpunit']['pretty_version'] ?? $phpVersions['phpunit/phpunit']['version'] ?? '');
+    if ($version === '' || version_compare($version, '8.5.52', '<') || version_compare($version, '9.0.0', '>=')) {
+        fwrite(STDERR, sprintf("check-cluster-pins: phpunit/phpunit version must be ^8.5.52 (got %s).\n", $version));
+        return false;
+    }
+
+    $sourceUrl = (string) ($jsonMeta['phpunit/phpunit']['source']['url'] ?? '');
+    if (stripos($sourceUrl, 'sebastianbergmann/phpunit') === false) {
+        fwrite(STDERR, "check-cluster-pins: phpunit/phpunit must come from sebastianbergmann/phpunit on Packagist.\n");
+        return false;
+    }
+
+    return true;
+}
+
+if (!validate_org_pins($expectedOrg, $installedVersions, $jsonByName)) {
     exit(1);
 }
 
-$phpunitRef = $jsonByName['phpunit/phpunit'];
-if (in_array($phpunitRef, $indexShas, true)) {
-    fwrite(STDERR, "check-cluster-pins: phpunit/phpunit must not be the Training-Datasmith index tip.\n");
+$expectedRef = phpunit_json_reference($jsonByName);
+if ($expectedRef === '') {
+    fwrite(STDERR, "check-cluster-pins: missing phpunit/phpunit reference.\n");
     exit(1);
 }
 
-$version = (string) ($jsonMeta['phpunit/phpunit']['version'] ?? $installedVersions['phpunit/phpunit']['pretty_version'] ?? $installedVersions['phpunit/phpunit']['version'] ?? '');
-if ($version === '' || version_compare($version, '8.5.52', '<') || version_compare($version, '9.0.0', '>=')) {
-    fwrite(STDERR, sprintf("check-cluster-pins: phpunit/phpunit version must be ^8.5.52 (got %s).\n", $version));
+if (!validate_packagist_phpunit($installedVersions, $jsonByName, $jsonMeta, $expectedRef)) {
     exit(1);
 }
 
-$sourceUrl = (string) ($jsonMeta['phpunit/phpunit']['source']['url'] ?? '');
-if (stripos($sourceUrl, 'sebastianbergmann/phpunit') === false) {
-    fwrite(STDERR, "check-cluster-pins: phpunit/phpunit must come from sebastianbergmann/phpunit on Packagist.\n");
-    exit(1);
-}
-
+$version = (string) ($jsonMeta['phpunit/phpunit']['version'] ?? '');
 fwrite(STDOUT, sprintf(
     "check-cluster-pins: org pin map empty; phpunit/phpunit is Packagist %s %s\n",
     $version,
-    $phpunitRef
+    $expectedRef
 ));
 
 $wrong = str_repeat('0', 40);
-$phpMutated = $installedVersions;
-$phpMutated['phpunit/phpunit']['reference'] = $wrong;
-if (validate_pins($expectedOrg, $phpMutated, $jsonByName, false)) {
+
+$phpSnap = $installedVersions;
+$phpSnap['phpunit/phpunit']['reference'] = $wrong;
+if (phpunit_ref_matches_expected(phpunit_php_reference($phpSnap), $expectedRef)) {
     fwrite(STDERR, "check-cluster-pins: wrong-sha demo installed.php should have failed.\n");
     exit(1);
 }
-if (!validate_pins($expectedOrg, $installedVersions, $jsonByName)) {
-    fwrite(STDERR, "check-cluster-pins: wrong-sha demo broke real installed.json map.\n");
+if (!phpunit_ref_matches_expected(phpunit_json_reference($jsonByName), $expectedRef)) {
+    fwrite(STDERR, "check-cluster-pins: wrong-sha demo installed.php snapshot broke unmutated installed.json side.\n");
     exit(1);
 }
 fwrite(STDOUT, "check-cluster-pins: wrong-sha demo installed.php failed and installed.json passed\n");
 
-$jsonMutated = $jsonByName;
-$jsonMutated['phpunit/phpunit'] = $wrong;
-if (validate_pins($expectedOrg, $installedVersions, $jsonMutated, false)) {
+$jsonSnap = $jsonByName;
+$jsonSnap['phpunit/phpunit'] = $wrong;
+if (phpunit_ref_matches_expected(phpunit_json_reference($jsonSnap), $expectedRef)) {
     fwrite(STDERR, "check-cluster-pins: wrong-sha demo installed.json should have failed.\n");
     exit(1);
 }
+if (!phpunit_ref_matches_expected(phpunit_php_reference($installedVersions), $expectedRef)) {
+    fwrite(STDERR, "check-cluster-pins: wrong-sha demo installed.json snapshot broke unmutated installed.php side.\n");
+    exit(1);
+}
 fwrite(STDOUT, "check-cluster-pins: wrong-sha demo installed.json failed and installed.php passed\n");
+
+$bothPhp = $installedVersions;
+$bothPhp['phpunit/phpunit']['reference'] = $wrong;
+$bothJson = $jsonByName;
+$bothJson['phpunit/phpunit'] = $wrong;
+if (phpunit_ref_matches_expected(phpunit_php_reference($bothPhp), $expectedRef)) {
+    fwrite(STDERR, "check-cluster-pins: both-sides wrong-sha demo: installed.php should have failed.\n");
+    exit(1);
+}
+if (phpunit_ref_matches_expected(phpunit_json_reference($bothJson), $expectedRef)) {
+    fwrite(STDERR, "check-cluster-pins: both-sides wrong-sha demo: installed.json should have failed.\n");
+    exit(1);
+}
+fwrite(STDOUT, "check-cluster-pins: wrong-sha demo both sides failed against expected reference\n");
 
 exit(0);

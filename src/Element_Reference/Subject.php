@@ -24,7 +24,7 @@ class Subject
     /**
      * Subject constructor.
      *
-     * @param int         $useNestingLimit
+     * @param int         $use_nesting_limit
      */
     public function __construct(\DOMElement $element, $use_nesting_limit)
     {

@@ -95,7 +95,7 @@ class Sanitizer
      * Set XML options to use when saving XML
      * See: DOMDocument::saveXML
      *
-     * @param int  $xmlOptions
+     * @param int  $xml_options
      */
     public function set_xml_options($xml_options): void
     {
@@ -146,7 +146,7 @@ class Sanitizer
     /**
      * Should we remove references to remote files?
      *
-     * @param bool $removeRemoteRefs
+     * @param bool $remove_remote_refs
      */
     public function remove_remote_references($remove_remote_refs = false): void
     {
@@ -173,7 +173,7 @@ class Sanitizer
     /**
      * Set whether we can allow huge files.
      *
-     * @param bool $allowHugeFiles
+     * @param bool $allow_huge_files
      */
     public function set_allow_huge_files($allow_huge_files): void
     {
@@ -229,7 +229,7 @@ class Sanitizer
         return $clean;
     }
     /**
-     * Set up libXML before we start
+     * Set up libxml before we start
      */
     protected function set_up_before()
     {
@@ -268,7 +268,7 @@ class Sanitizer
         // we do this backwards so we don't skip anything if we delete a node
         // see comments at: http://php.net/manual/en/class.domnamednodemap.php
         for ($i = $elements->length - 1; $i >= 0; $i--) {
-            /** @var \DOMElement $currentElement */
+            /** @var \DOMElement $current_element */
             $current_element = $elements->item($i);
             /**
              * If the element has exceeded the nesting limit, we should remove it.
@@ -484,7 +484,7 @@ class Sanitizer
     /**
      * Should we minify the output?
      *
-     * @param bool $shouldMinify
+     * @param bool $should_minify
      */
     public function minify($should_minify = false): void
     {
@@ -503,7 +503,7 @@ class Sanitizer
      * Whether `<use ... xlink:href="#identifier">` elements shall be
      * removed in case expansion would exceed this threshold.
      *
-     * @param int $useThreshold
+     * @param int $use_threshold
      */
     public function use_threshold($use_threshold = 1000): void
     {
@@ -512,7 +512,7 @@ class Sanitizer
     /**
      * Check to see if an attribute is an aria attribute or not
      *
-     * @param $attributeName
+     * @param $attribute_name
      */
     protected function is_aria_attribute($attribute_name): bool
     {
@@ -521,7 +521,7 @@ class Sanitizer
     /**
      * Check to see if an attribute is an data attribute or not
      *
-     * @param $attributeName
+     * @param $attribute_name
      */
     protected function is_data_attribute($attribute_name): bool
     {
@@ -537,8 +537,8 @@ class Sanitizer
     }
     /**
      * Determines whether `<use ... xlink:href="#identifier">` is expanded
-     * recursively in order to create DoS scenarios. The amount of a actually
-     * used element needs to be below `$this->useThreshold`.
+     * recursively in order to create denial-of-service scenarios. The amount of a actually
+     * used element needs to be below `$this->use_threshold`.
      */
     protected function is_use_tag_exceeding_threshold(\DOMElement $element): bool
     {
@@ -568,7 +568,7 @@ class Sanitizer
     /**
      * Remove nodes that are either invalid or malformed.
      *
-     * @param \DOMNode $currentElement The current element.
+     * @param \DOMNode $current_element The current element.
      */
     protected function clean_unsafe_nodes(\DOMNode $current_element)
     {
@@ -584,7 +584,7 @@ class Sanitizer
         }
         if ($current_element->childNodes && $current_element->childNodes->length > 0) {
             for ($j = $current_element->childNodes->length - 1; $j >= 0; $j--) {
-                /** @var \DOMElement $childElement */
+                /** @var \DOMElement $child_element */
                 $child_element = $current_element->childNodes->item($j);
                 $this->clean_unsafe_nodes($child_element);
             }

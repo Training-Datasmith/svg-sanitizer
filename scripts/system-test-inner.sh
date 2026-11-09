@@ -70,7 +70,7 @@ php -d error_reporting="${error_reporting}" scripts/check-rename.php
 baseline="$(php -d error_reporting="${error_reporting}" -r 'echo json_decode(file_get_contents("tests/baseline.json"), true)["phpunit_ok_line"];')"
 phpunit_out="$(mktemp)"
 set +e
-vendor/bin/phpunit --colors=never --no-coverage >"${phpunit_out}" 2>&1
+php -d error_reporting="${error_reporting}" vendor/bin/phpunit --colors=never --no-coverage >"${phpunit_out}" 2>&1
 phpunit_status=$?
 set -e
 cat "${phpunit_out}"

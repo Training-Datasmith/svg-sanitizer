@@ -137,7 +137,7 @@ class Sanitizer_Test extends TestCase
     /**
      * Make sure that hrefs get sanitized correctly when the xlink namespace is omitted.
      */
-    public function test_sanitize_hrefsNoXlinkNamespace()
+    public function test_sanitize_hrefs_no_xlink_namespace()
     {
         $data_directory = __DIR__ . '/data';
         $initial_data = file_get_contents($data_directory . '/href_test_two.svg');
